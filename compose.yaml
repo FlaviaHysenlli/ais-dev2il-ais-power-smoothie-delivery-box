@@ -1,20 +1,24 @@
-services:                    # Define your containers
-  service-name:              # Choose a meaningful name
-    image: image-name:tag    # Use a pre-built image
-    # OR
-    build: ./path            # Build from a Dockerfile
+services:
+  recipe-server:
+    image: python:3.13-slim
+    command: python -m http.server 8000
+    working_dir: /recipes
+    volumes:
+      - ./smoothie-database:/recipes
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: [ "CMD-SHELL", "python -c 'import urllib.request; urllib.request.urlopen(\"http://localhost:8000\")' || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
 
-    command: some command    # Override default command
-    working_dir: /path       # Set working directory
-
-    ports:                   # Publish ports
-      - "host:container"
-
-    volumes:                 # Mount files/directories
-      - ./host/path:/container/path
-
-    environment:             # Set environment variables
-      - VAR=value
-
-    depends_on:              # Start order dependencies
-      - other-service
+  smoothie-app:
+    build:
+      context: .
+      dockerfile: Dockerfile_Clean
+    command: http://recipe-server:8000/tropical_paradise.txt
+    depends_on:
+      recipe-server:
+        condition: service_healthy
