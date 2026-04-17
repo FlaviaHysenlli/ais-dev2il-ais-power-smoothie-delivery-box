@@ -1,0 +1,20 @@
+services:                    # Define your containers
+  service-name:              # Choose a meaningful name
+    image: image-name:tag    # Use a pre-built image
+    # OR
+    build: ./path            # Build from a Dockerfile
+
+    command: some command    # Override default command
+    working_dir: /path       # Set working directory
+
+    ports:                   # Publish ports
+      - "host:container"
+
+    volumes:                 # Mount files/directories
+      - ./host/path:/container/path
+
+    environment:             # Set environment variables
+      - VAR=value
+
+    depends_on:              # Start order dependencies
+      - other-service
